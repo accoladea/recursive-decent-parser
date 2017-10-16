@@ -38,7 +38,9 @@ void displayTree(TREE n, int level);
 
 int main(int argc, const char * argv[]) {
     
-    nextSym = "123+3";
+    //Test different inputs
+    nextSym = "9*7-12";
+    
     parseTree = E();
     displayTree(parseTree,0);
     printf("\n");
@@ -98,14 +100,12 @@ TREE makeNode1(char x, TREE t)
 {
     TREE root = makeNode0(x);
     root->leftmostChild=t;
-    //(root->leftmostChild)->parent=root;
     return root;
 }
 TREE makeNode2(char x, TREE t1, TREE t2)
 {
     TREE root = makeNode1(x, t1);
     t1->rightSibling=t2;
-    //(t1->leftmostChild)->parent=t1;
     return root;
 }
 TREE makeNode3(char x, TREE t1, TREE t2, TREE t3)
@@ -113,16 +113,14 @@ TREE makeNode3(char x, TREE t1, TREE t2, TREE t3)
     TREE root = makeNode1(x, t1);
     t1->rightSibling=t2;
     t2->rightSibling=t3;
-    //(t2->rightSibling)->parent=t2;
     return root;
 }
 
 TREE E(){
-    TREE a = T();
-    if(a == NULL) return NULL;
-    TREE b = TT();
-    if(b == NULL) return NULL;
-    return makeNode2('E', a,b);
+    TREE firstB = T(),secondB = TT();
+    if (firstB != NULL && secondB != NULL)
+        return makeNode2('E', firstB, secondB);
+    return NULL;
 }
 
 TREE TT(){
@@ -225,4 +223,3 @@ TREE D(){
     } else return NULL;
     
 }
-
