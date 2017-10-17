@@ -12,10 +12,8 @@
 #include <stdlib.h>
 
 typedef struct NODE *TREE;
-
 TREE parseTree;
 char *nextSym;
-
 TREE E(void);
 TREE TT(void);
 TREE T(void);
@@ -28,18 +26,16 @@ TREE makeNode0(char x);
 TREE makeNode1(char x, TREE t);
 TREE makeNode2(char x, TREE t1, TREE t2);
 TREE makeNode3(char x, TREE t1, TREE t2, TREE t3);
+
 struct NODE {
     char label;
     TREE leftmostChild, rightSibling;
 };
 void displayTree(TREE n, int level);
-
-
-
 int main(int argc, const char * argv[]) {
     
     //Test different inputs
-    nextSym = "9*7-12";
+    nextSym = "(3-2)*4/(6-1*3*(7-1))";
     
     parseTree = E();
     displayTree(parseTree,0);
@@ -53,7 +49,7 @@ void displayTree(TREE n, int level)
     TREE c;
     
     for(int i = 1; i<=level; i++) {
-        printf("   ");
+        printf("\t\t");
     }
     switch (n->label) {
         case 'W':
@@ -70,15 +66,21 @@ void displayTree(TREE n, int level)
             printf("%c\n", n->label);
     }
     c=n->leftmostChild;
-    while (c != NULL) {
+    
+    while (c != NULL)
+    {
         displayTree(c, level+1);
         c = c->rightSibling;
     }
 }
-int nextTerminal(char c){
+
+int nextTerminal(char c)
+{
     return *nextSym == c;
 }
-int matchTerminal(char c){
+
+int matchTerminal(char c)
+{
     if (*nextSym == c) {
         nextSym++;
         return 1;
@@ -86,6 +88,7 @@ int matchTerminal(char c){
         return 0;
     }
 }
+
 TREE makeNode0(char x)
 {
     TREE root;
@@ -102,12 +105,14 @@ TREE makeNode1(char x, TREE t)
     root->leftmostChild=t;
     return root;
 }
+
 TREE makeNode2(char x, TREE t1, TREE t2)
 {
     TREE root = makeNode1(x, t1);
     t1->rightSibling=t2;
     return root;
 }
+
 TREE makeNode3(char x, TREE t1, TREE t2, TREE t3)
 {
     TREE root = makeNode1(x, t1);
@@ -116,90 +121,161 @@ TREE makeNode3(char x, TREE t1, TREE t2, TREE t3)
     return root;
 }
 
-TREE E(){
-    TREE firstB = T(),secondB = TT();
-    if (firstB != NULL && secondB != NULL)
-        return makeNode2('E', firstB, secondB);
-    return NULL;
+TREE E()
+{
+    TREE firstB,secondB;
+    
+    firstB = T();
+    if (firstB == NULL)
+        return NULL;
+    
+    secondB = TT();
+    if (secondB == NULL) {
+        return NULL;
+    }
+    
+    return makeNode2('E', firstB, secondB);
 }
 
-TREE TT(){
-    if (!nextTerminal('+') && !nextTerminal('-')){
+TREE TT()
+{
+    TREE firstB, secondB;
+    
+    if (!nextTerminal('+') && !nextTerminal('-'))
+    {
         return makeNode1('W', makeNode0('e'));
-    } else if (matchTerminal('+')) {
-        TREE firstB = T();
-        if(firstB == NULL) return NULL;
-        TREE secondB = FT();
-        if(secondB == NULL) return NULL;
+    }
+    else if (matchTerminal('+'))
+    {
+        firstB = T();
+        if(firstB == NULL)
+            return NULL;
+        
+        secondB = FT();
+        if(secondB == NULL)
+            return NULL;
+        
         return makeNode3('W',makeNode0('+'), firstB, secondB);
-    } else if (matchTerminal('-')){
-        TREE firstB = F();
-        if(firstB == NULL) return NULL;
-        TREE secondB = FT();
-        if(secondB == NULL) return NULL;
+    }
+    else if (matchTerminal('-'))
+    {
+        firstB = F();
+        if(firstB == NULL)
+            return NULL;
+        
+        secondB = FT();
+        if(secondB == NULL)
+            return NULL;
+        
         return makeNode3('W',makeNode0('-'), firstB, secondB);
-    } else return NULL;
+    }
+    else
+        return NULL;
 }
 
-TREE T(){
-    TREE firstB = F(),secondB = FT();
-    if (firstB != NULL || secondB != NULL)
-        return makeNode2('T', firstB, secondB);
-    return NULL;
+TREE T()
+{
+    
+    TREE firstB, secondB;
+    
+    firstB = F();
+    if(firstB == NULL)
+        return NULL;
+    
+    secondB = FT();
+    if(secondB == NULL)
+        return NULL;
+    
+    return makeNode2('T', firstB, secondB);
 }
 
 TREE FT(){
     
-    if (!nextTerminal('*') && !nextTerminal('/')) {
+    if (!nextTerminal('*') && !nextTerminal('/'))
+    {
         return makeNode1('B', makeNode0('e'));
-    } else if (matchTerminal('*')) {
-        TREE firstB = F();
-        if(firstB == NULL) return NULL;
-        TREE secondB = FT();
-        if(secondB == NULL) return NULL;
+    }
+    else if (matchTerminal('*'))
+    {
+        TREE firstB, secondB;
+        
+        firstB = F();
+        if(firstB == NULL)
+            return NULL;
+        
+        secondB = FT();
+        if(secondB == NULL)
+            return NULL;
+        
         return makeNode3('B', makeNode0('*'), firstB, secondB);
-    } else if (matchTerminal('/')) {
+    }
+    else if (matchTerminal('/'))
+    {
         TREE firstB = F();
-        if(firstB == NULL) return NULL;
+        if(firstB == NULL)
+            return NULL;
         TREE secondB = FT();
-        if(secondB == NULL) return NULL;
+        if(secondB == NULL)
+            return NULL;
         return makeNode3('B', makeNode0('/'), firstB, secondB);
-    } else return NULL;
+        
+    }
+    else
+        return NULL;
     
 }
 
 TREE F(){
     
-    if(nextTerminal('(')){
-        TREE firstB = E();
-        if(firstB != NULL && matchTerminal(')')){
-            return makeNode3('F', makeNode0('('), firstB, makeNode0(')'));
-        } else return NULL;
+    TREE firstB, secondB;
+    
+    if(nextTerminal('(')) {
+        
+        if(!matchTerminal('('))
+            return NULL;
+        firstB = E();
+        if(firstB == NULL)
+            return NULL;
+        if(!matchTerminal(')'))
+            return NULL;
+        return makeNode3('E',makeNode0('('), firstB, makeNode0(')'));
+        
     } else {
-        TREE secondB = N();
-        return makeNode1('F', secondB);
+        
+        secondB = N();
+        if(secondB == NULL)
+            return NULL;
+        return makeNode1('N', secondB);
+        
     }
 }
 
 
 TREE N(){
     
-    TREE firstB = D();
-    if (*nextSym >= '0' && *nextSym <= '9'){
-        TREE secondB = NT();
-        return makeNode2('N', firstB, secondB);
-    }
-    return NULL;
+    TREE firstB, secondB;
+    
+    firstB = D();
+    if(firstB == NULL)
+        return NULL;
+    
+    secondB = NT();
+    if(secondB == NULL)
+        return NULL;
+    
+    return makeNode2('N', firstB, secondB);
 }
 
-TREE NT() {
+TREE NT()
+{
     TREE firstB = N();
-    if (firstB != NULL)
-        return makeNode1('M', firstB);
-    return makeNode1('M', makeNode0('e'));
+    if (firstB == NULL)
+        return makeNode1('M', makeNode0('e'));
+    return makeNode1('M', firstB);
 }
 
-TREE D(){
+TREE D()
+{
     if(matchTerminal('0')){
         return makeNode1('D',makeNode0('0'));
     } else if(matchTerminal('1')){
