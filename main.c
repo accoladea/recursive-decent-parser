@@ -1,8 +1,8 @@
 //Equivalent grammar that is parsable by a recursive-descent parser:
-//T() => <T>  -> <T><TT>
+//E() => <T>  -> <T><TT>
 //TT() => <TT> -> +-<T><TT>|e
-//T() => <T>  -> <F><B>
-//FT()=> <FT> -> */<F><B>|e
+//T() => <T>  -> <F><FT>
+//FT()=> <FT> -> */<F><FT>|e
 //F() => <F>  -> <N>|(<E>)
 //N() => <N>  -> <D><NT>
 //NT()=> <NT> -> <N> | e
@@ -32,14 +32,22 @@ struct NODE {
     TREE leftmostChild, rightSibling;
 };
 void displayTree(TREE n, int level);
+void printNumbers(TREE n);
+//void concanNumbers(TREE n);
+//void storeAsStrings(char label);
+//int eval (TREE n);
+
 int main(int argc, const char * argv[]) {
     
     //Test different inputs
-    nextSym = "(3-2)*4/(6-1*3*(7-1))";
+    nextSym = "2-(3+1)/53+1*3-(1+2)";
     
     parseTree = E();
     displayTree(parseTree,0);
-    printf("\n");
+    printf("\n\n\n\n");
+    printNumbers(parseTree);
+    printf("\n\n\n\n");
+    //concanNumbers(parseTree);
     return 0;
 }
 
@@ -137,6 +145,15 @@ TREE E()
     return makeNode2('E', firstB, secondB);
 }
 
+//E() => <T>  -> <T><TT>
+//TT() => <TT> -> +-<T><TT>|e
+//T() => <T>  -> <F><FT>
+//FT()=> <FT> -> */<F><FT>|e
+//F() => <F>  -> <N>|(<E>)
+//N() => <N>  -> <D><NT>
+//NT()=> <NT> -> <N> | e
+//D() => 0|...|9
+
 TREE TT()
 {
     TREE firstB, secondB;
@@ -151,7 +168,7 @@ TREE TT()
         if(firstB == NULL)
             return NULL;
         
-        secondB = FT();
+        secondB = TT();
         if(secondB == NULL)
             return NULL;
         
@@ -159,11 +176,11 @@ TREE TT()
     }
     else if (matchTerminal('-'))
     {
-        firstB = F();
+        firstB = T();
         if(firstB == NULL)
             return NULL;
         
-        secondB = FT();
+        secondB = TT();
         if(secondB == NULL)
             return NULL;
         
@@ -299,3 +316,83 @@ TREE D()
     } else return NULL;
     
 }
+
+// Evaluating an expression tree
+//int eval (TREE n)
+//{
+//    int val1, val2;
+//    if(n->label >= 48 && n->label <= 57)
+//        return n->label;
+//    else
+//    {
+//        val1 = eval(n->leftmostChild);
+//        val2 = eval(n->leftmostChild->rightSibling);
+//        switch (n->label) {
+//            case '+':
+//                return val1 + val2;
+//            case '-':
+//                return val1 - val2;
+//            case '*':
+//                return val1 * val2;
+//            case '/':
+//                return val1 / val2;
+//        }
+//    }
+//    return 0;
+//}
+
+void printNumbers(TREE n)
+{
+    TREE c;
+    
+    if (n->label >= 48 && n->label <= 57) {
+        printf("%c\n", n->label);
+    }
+    c=n->leftmostChild;
+    
+    while (c != NULL)
+    {
+        printNumbers(c);
+        c = c->rightSibling;
+    }
+}
+
+//void concanNumbers(TREE n)
+//{
+//    TREE c;
+//    //int val1, val2;
+//    if (n->label >= 48 && n->label <= 57) {
+//        printf("%c", n->label);
+//    } else
+//    {
+////        val1 = eval(n->leftmostChild);
+////        val2 = eval(n->leftmostChild->rightSibling);
+////
+////
+//
+//        switch (n->label) {
+//            case '+':
+//                printf("%c", n->leftmostChild->label);
+//                exit(1);
+//                break;
+//                //return val1 + val2;
+////            case '-':
+////               // return val1 - val2;
+////            case '*':
+////                //return val1 * val2;
+////            case '/':
+////                //return val1 / val2;
+//        }
+//    }
+
+//    c=n->leftmostChild;
+//    while (c != NULL)
+//    {
+//        concanNumbers(c);
+//        c = c->rightSibling;
+//    }
+//}
+//
+//void storeAsStrings(char label){
+//
+//}
